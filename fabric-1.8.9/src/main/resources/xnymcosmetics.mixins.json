@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "fr.xnym.cosmetics.fabric189.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "client": [
+    "AbstractClientPlayerEntityMixin",
+    "LivingEntityRendererInvoker",
+    "PlayerEntityMixin",
+    "PlayerEntityRendererMixin"
+  ],
+  "injectors": { "defaultRequire": 1 }
+}

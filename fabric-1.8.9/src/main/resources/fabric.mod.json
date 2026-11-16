@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "id": "xnymcosmetics",
+  "version": "${version}",
+  "name": "xNym Cosmetics",
+  "description": "Capes, bandanas et name tags gratuits pour les joueurs de xNym's Client.",
+  "authors": ["xNym"],
+  "license": "All-Rights-Reserved",
+  "environment": "client",
+  "entrypoints": { "client": ["fr.xnym.cosmetics.fabric189.XnymFabric189"] },
+  "mixins": ["xnymcosmetics.mixins.json"],
+  "depends": { "fabricloader": ">=0.14.0", "minecraft": "1.8.9" }
+}

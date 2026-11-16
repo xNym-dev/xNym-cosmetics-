@@ -1,0 +1,8 @@
+[{
+  "modid": "xnymcosmetics",
+  "name": "xNym Cosmetics",
+  "description": "Capes, bandanas et name tags gratuits pour les joueurs de xNym's Client.",
+  "version": "${version}",
+  "mcversion": "1.8.9",
+  "authorList": ["xNym"]
+}]

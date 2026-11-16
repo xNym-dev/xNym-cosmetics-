@@ -1,0 +1,17 @@
+modLoader = "javafml"
+loaderVersion = "[54,)"
+license = "All-Rights-Reserved"
+
+[[mods]]
+modId = "xnymcosmetics"
+version = "${version}"
+displayName = "xNym Cosmetics"
+authors = "xNym"
+description = "Capes, bandanas et name tags gratuits pour les joueurs de xNym's Client."
+
+[[dependencies.xnymcosmetics]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.21.4]"
+ordering = "NONE"
+side = "CLIENT"

@@ -10,7 +10,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw
 
 S = 4  # facteur d'échelle
-RACINE = Path(__file__).resolve().parent.parent / "textures"
+RACINE = Path(__file__).resolve().parent.parent / "common/src/main/resources/assets/xnymcosmetics/textures"
 NOIR = (14, 10, 22)
 VIOLET = (124, 58, 237)
 VIOLET_CLAIR = (192, 132, 252)

@@ -1,0 +1,32 @@
+plugins {
+    id 'fabric-loom' version '1.11-SNAPSHOT'
+}
+
+version = project.mod_version
+group = 'fr.xnym'
+base { archivesName = 'xnymcosmetics-fabric-1.19.4' }
+
+sourceSets.main {
+    java.srcDirs '../common/src/main/java', '../shared-1.19.4/src/main/java'
+    resources.srcDirs '../common/src/main/resources', '../shared-1.19.4/src/main/resources'
+}
+
+loom {
+    mixin { defaultRefmapName = 'xnymcosmetics.refmap.json' }
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:1.19.4"
+    mappings loom.officialMojangMappings()
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+}
+
+processResources {
+    inputs.property 'version', project.version
+    filesMatching('fabric.mod.json') { expand 'version': project.version }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.encoding = 'UTF-8'
+    it.options.release = 17
+}

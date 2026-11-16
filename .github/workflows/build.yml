@@ -1,0 +1,70 @@
+name: Compiler le mod
+
+on:
+  push:
+    paths-ignore: ["worker/**", "README.md"]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: ${{ matrix.projet }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { projet: forge-1.8.9,   java: 17, gradle: "8.8" }
+          - { projet: fabric-1.8.9,  java: 21, gradle: "8.14.3" }
+          - { projet: forge-1.19.4,  java: 17, gradle: "8.8" }
+          - { projet: fabric-1.19.4, java: 21, gradle: "8.14.3" }
+          - { projet: forge-1.21.4,  java: 21, gradle: "8.14.3" }
+          - { projet: fabric-1.21.4, java: 21, gradle: "8.14.3" }
+          - { projet: forge-1.21.8,  java: 21, gradle: "8.14.3" }
+          - { projet: fabric-1.21.8, java: 21, gradle: "8.14.3" }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: |
+            8
+            17
+            21
+      - name: Choisir le Java de Gradle
+        run: echo "JAVA_HOME=$JAVA_HOME_${{ matrix.java }}_X64" >> "$GITHUB_ENV"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: ${{ matrix.gradle }}
+      - name: Compiler
+        working-directory: ${{ matrix.projet }}
+        run: gradle build --stacktrace -Porg.gradle.java.installations.auto-download=false -Porg.gradle.java.installations.fromEnv=JAVA_HOME_8_X64,JAVA_HOME_17_X64,JAVA_HOME_21_X64
+      - name: Garder le .jar final
+        run: |
+          mkdir -p sortie
+          find ${{ matrix.projet }}/build/libs -name "xnymcosmetics-*.jar" ! -name "*-sources.jar" ! -name "*-dev*.jar" ! -name "*-all.jar" -exec cp {} sortie/ \;
+          ls -la sortie
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.projet }}
+          path: sortie/*.jar
+
+  publier:
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: jars
+          merge-multiple: true
+      - run: ls -la jars
+      - name: Publier la version "dernière"
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: derniere
+          name: Dernière version
+          prerelease: false
+          make_latest: true
+          files: jars/*.jar

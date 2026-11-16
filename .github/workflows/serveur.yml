@@ -1,0 +1,40 @@
+name: Déployer le serveur
+
+on:
+  push:
+    branches: [main]
+    paths: ["worker/**", "catalog.json", ".github/workflows/serveur.yml"]
+  workflow_dispatch:
+
+jobs:
+  deployer:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Vérifier la clé Cloudflare
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
+            echo "::error::Ajoute le secret CLOUDFLARE_API_TOKEN dans Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+      - name: Installer wrangler
+        working-directory: worker
+        run: npm install --no-save wrangler@4
+      - name: Créer ou retrouver la base KV
+        working-directory: worker
+        run: |
+          ID=$(npx wrangler kv namespace list | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const l=JSON.parse(s.slice(s.indexOf("[")));const n=l.find(x=>x.title==="xnym_cosmetics_kv");console.log(n?n.id:"")})')
+          if [ -z "$ID" ]; then
+            npx wrangler kv namespace create xnym_cosmetics_kv
+            ID=$(npx wrangler kv namespace list | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const l=JSON.parse(s.slice(s.indexOf("[")));const n=l.find(x=>x.title==="xnym_cosmetics_kv");console.log(n?n.id:"")})')
+          fi
+          echo "Base KV : $ID"
+          sed -i "s/__KV_ID__/$ID/" wrangler.toml
+      - name: Déployer
+        working-directory: worker
+        run: npx wrangler deploy

@@ -1,0 +1,8 @@
+name = "xnym-cosmetics"
+main = "src/index.js"
+compatibility_date = "2025-06-01"
+workers_dev = true
+
+[[kv_namespaces]]
+binding = "COSMETICS"
+id = "__KV_ID__"

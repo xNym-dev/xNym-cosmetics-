@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "fr.xnym.cosmetics.mc.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "xnymcosmetics.refmap.json",
+  "client": [
+    "AbstractClientPlayerMixin",
+    "PlayerMixin",
+    "PlayerRendererMixin"
+  ],
+  "injectors": { "defaultRequire": 1 }
+}

@@ -1,0 +1,44 @@
+plugins {
+    id 'net.minecraftforge.gradle' version '[6.0.24,6.2)'
+}
+
+version = project.mod_version
+group = 'fr.xnym'
+base { archivesName = 'xnymcosmetics-forge-1.21.4' }
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+
+sourceSets.main {
+    java.srcDirs '../common/src/main/java', '../shared-1.21/src/main/java'
+    resources.srcDirs '../common/src/main/resources', '../shared-1.21/src/main/resources'
+}
+
+minecraft {
+    mappings channel: 'official', version: '1.21.4'
+    reobf = false
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    minecraft 'net.minecraftforge:forge:1.21.4-54.1.13'
+}
+
+tasks.named('processResources', ProcessResources).configure {
+    inputs.property 'version', project.version
+    filesMatching('META-INF/mods.toml') { expand 'version': project.version }
+}
+
+tasks.named('jar', Jar).configure {
+    manifest {
+        attributes([
+            'Specification-Title'   : 'xnymcosmetics',
+            'Implementation-Version': project.version,
+            'MixinConfigs'          : 'xnymcosmetics.mixins.json'
+        ])
+    }
+}
+
+tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }
