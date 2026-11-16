@@ -24,7 +24,7 @@ public final class XnymCosmetics {
     public static final String MOD_ID = "xnymcosmetics";
 
     /** Adresse du serveur des cosmétiques (Cloudflare Worker). */
-    public static final String API = "https://xnym-cosmetics.xnym.workers.dev";
+    public static final String API = "https://xnym-cosmetics.grossofrancesco825.workers.dev";
 
     private static final long DUREE_CACHE_MS = 5 * 60 * 1000L;   // on redemande toutes les 5 min
     private static final long DUREE_ERREUR_MS = 60 * 1000L;      // après une erreur réseau, on attend 1 min
