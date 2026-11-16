@@ -2,17 +2,18 @@
 //
 // GET  /catalog                 → catalogue des cosmétiques
 // POST /lookup   {uuids:[...]}  → { "<uuid>": {cape, bandana, nametag, ailes}, ... } (uniquement ceux qui ont des cosmétiques)
-// POST /auth/start {name}       → { nonce }   (le client appelle ensuite Mojang "join" avec serverId = nonce)
-// POST /auth/finish {nonce}     → { token, uuid, name }  (vérifié auprès de Mojang "hasJoined")
+// POST /auth/start {name}       → { nonce }
+// POST /auth/finish {nonce, uuid, cle, signatureMojang, expire, signature} → { token, uuid, name }
+//                                (certificat de joueur Mojang vérifié hors-ligne)
 // GET  /me   (Authorization: Bearer <token>) → cosmétiques du joueur
 // PUT  /me   (Authorization: Bearer <token>) {cape, bandana, nametag} → enregistre
 //
 // Clés KV : "u:<uuid sans tirets>" → JSON des cosmétiques ; "n:<nonce>" → pseudo (5 min) ; "cfg:secret" → clé HMAC.
 
 import catalog from "../../catalog.json";
+import { CLES_CERTIFICATS } from "./cles-mojang.js";
 
 const MAX_LOOKUP = 100;
-const MOJANG_ENTETES = { "User-Agent": "xNym-Cosmetics/1.0 (+https://github.com/xNym-dev/xNym-cosmetics-)", Accept: "application/json" };
 const DUREE_TOKEN = 30 * 24 * 3600; // 30 jours
 const IDS = {
   cape: new Set(catalog.capes.map((c) => c.id)),
@@ -33,6 +34,13 @@ const uuidValide = (u) => /^[0-9a-f]{32}$/.test(u);
 
 function hex(buf) {
   return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+function deBase64(str) {
+  const bin = atob(str.replace(/\s+/g, ""));
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
 }
 
 function b64url(str) {
@@ -102,19 +110,6 @@ async function routes(request, env) {
 
   if (chemin === "/" && request.method === "GET") return json({ service: "xnym-cosmetics", ok: true });
 
-  // Diagnostic : le serveur arrive-t-il à joindre Mojang ? (aucune donnée personnelle)
-  if (chemin === "/diag" && request.method === "GET") {
-    const essais = {};
-    for (const [nom, url, entetes] of [
-      ["hasJoined_ua", "https://sessionserver.mojang.com/session/minecraft/hasJoined?username=Notch&serverId=test", MOJANG_ENTETES],
-      ["profil_session", "https://sessionserver.mojang.com/session/minecraft/profile/069a79f444e94726a5befca90e38aaf5", MOJANG_ENTETES],
-      ["services_profil", "https://api.minecraftservices.com/minecraft/profile", { ...MOJANG_ENTETES, Authorization: "Bearer test" }],
-    ]) {
-      const r = await fetch(url, { headers: entetes });
-      essais[nom] = r.status;
-    }
-    return json(essais);
-  }
 
   if (chemin === "/catalog" && request.method === "GET") {
     return json(catalog, 200, { "cache-control": "public, max-age=300" });
@@ -141,22 +136,56 @@ async function routes(request, env) {
     return json({ nonce });
   }
 
+  // Preuve d'identité sans contacter Mojang (Mojang bloque les serveurs Cloudflare) :
+  // le launcher envoie le certificat de joueur signé par Mojang (uuid + clé publique + expiration)
+  // et signe le nonce avec la clé privée correspondante.
   if (chemin === "/auth/finish" && request.method === "POST") {
     const corps = await lireJson(request);
-    const nonce = corps && typeof corps.nonce === "string" ? corps.nonce : "";
-    if (!/^[0-9a-f]{32}$/.test(nonce)) return erreur("nonce invalide");
+    if (!corps) return erreur("corps invalide");
+    const { nonce, uuid: uuidBrut, cle, signatureMojang, expire, signature } = corps;
+    if (typeof nonce !== "string" || !/^[0-9a-f]{32}$/.test(nonce)) return erreur("nonce invalide");
+    const uuid = normUuid(uuidBrut);
+    if (!uuidValide(uuid)) return erreur("uuid invalide");
+    if (typeof cle !== "string" || typeof signatureMojang !== "string" || typeof signature !== "string") return erreur("certificat manquant");
+    if (typeof expire !== "number" || expire < Date.now()) return erreur("certificat expiré", 401);
     const name = await env.COSMETICS.get(`n:${nonce}`);
     if (!name) return erreur("nonce expiré", 401);
     await env.COSMETICS.delete(`n:${nonce}`);
-    const r = await fetch(
-      `https://sessionserver.mojang.com/session/minecraft/hasJoined?username=${encodeURIComponent(name)}&serverId=${nonce}`,
-      { headers: MOJANG_ENTETES }
-    );
-    if (r.status !== 200) return erreur(`vérification Mojang refusée (HTTP ${r.status})`, 401);
-    const profil = await r.json();
-    const uuid = normUuid(profil.id);
-    if (!uuidValide(uuid)) return erreur("profil Mojang invalide", 401);
-    return json({ token: await creerToken(env, uuid), uuid, name: profil.name });
+
+    let cleDer, sigMojang, sigJoueur;
+    try {
+      cleDer = deBase64(cle);
+      sigMojang = deBase64(signatureMojang);
+      sigJoueur = deBase64(signature);
+    } catch {
+      return erreur("certificat illisible");
+    }
+    // 1) le certificat (uuid + expiration + clé du joueur) est-il signé par Mojang ?
+    const charge = new Uint8Array(24 + cleDer.length);
+    const vue = new DataView(charge.buffer);
+    for (let i = 0; i < 16; i++) charge[i] = parseInt(uuid.substr(i * 2, 2), 16);
+    vue.setBigInt64(16, BigInt(expire));
+    charge.set(cleDer, 24);
+    let signeParMojang = false;
+    for (const k of CLES_CERTIFICATS) {
+      const cleMojang = await crypto.subtle.importKey("spki", deBase64(k), { name: "RSASSA-PKCS1-v1_5", hash: "SHA-1" }, false, ["verify"]);
+      if (await crypto.subtle.verify("RSASSA-PKCS1-v1_5", cleMojang, sigMojang, charge)) {
+        signeParMojang = true;
+        break;
+      }
+    }
+    if (!signeParMojang) return erreur("certificat non signé par Mojang", 401);
+    // 2) le joueur possède-t-il la clé privée ? (il a signé notre nonce avec)
+    let cleJoueur;
+    try {
+      cleJoueur = await crypto.subtle.importKey("spki", cleDer, { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" }, false, ["verify"]);
+    } catch {
+      return erreur("clé du joueur invalide");
+    }
+    if (!(await crypto.subtle.verify("RSASSA-PKCS1-v1_5", cleJoueur, sigJoueur, new TextEncoder().encode(nonce)))) {
+      return erreur("signature du joueur invalide", 401);
+    }
+    return json({ token: await creerToken(env, uuid), uuid, name });
   }
 
   if (chemin === "/me") {
