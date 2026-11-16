@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "capes": [
+    { "id": "violet_nuit", "nom": "Violet nuit" },
+    { "id": "xnym", "nom": "Logo xNym" },
+    { "id": "galaxie", "nom": "Galaxie" },
+    { "id": "flammes", "nom": "Flammes violettes" },
+    { "id": "eclair", "nom": "Éclair" },
+    { "id": "damier", "nom": "Damier" }
+  ],
+  "bandanas": [
+    { "id": "violet", "nom": "Bandana violet" },
+    { "id": "noir", "nom": "Bandana noir" },
+    { "id": "rouge", "nom": "Bandana rouge" },
+    { "id": "xnym", "nom": "Bandana xNym" }
+  ],
+  "nametags": [
+    { "id": "violet", "nom": "Violet", "couleurs": ["#A855F7"] },
+    { "id": "degrade", "nom": "Dégradé xNym", "couleurs": ["#7C3AED", "#EC4899"] },
+    { "id": "arc_en_ciel", "nom": "Arc-en-ciel", "couleurs": ["#EF4444", "#F59E0B", "#22C55E", "#3B82F6", "#A855F7"] },
+    { "id": "or", "nom": "Or", "couleurs": ["#FBBF24"] },
+    { "id": "etoile", "nom": "Étoile violette", "couleurs": ["#C084FC"], "icone": "✦" }
+  ]
+}
