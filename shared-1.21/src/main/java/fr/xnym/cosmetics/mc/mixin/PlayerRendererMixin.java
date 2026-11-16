@@ -1,5 +1,6 @@
 package fr.xnym.cosmetics.mc.mixin;
 
+import fr.xnym.cosmetics.mc.CoucheAiles;
 import fr.xnym.cosmetics.mc.CoucheBandana;
 import fr.xnym.cosmetics.mc.EtatBandana;
 import fr.xnym.cosmetics.mc.XnymMc;
@@ -23,11 +24,13 @@ public abstract class PlayerRendererMixin extends LivingEntityRenderer<AbstractC
     @Inject(method = "<init>", at = @At("RETURN"))
     private void xnym$ajouterBandana(EntityRendererProvider.Context ctx, boolean fin, CallbackInfo ci) {
         this.addLayer(new CoucheBandana((PlayerRenderer) (Object) this));
+        this.addLayer(new CoucheAiles((PlayerRenderer) (Object) this));
     }
 
     @Inject(method = "extractRenderState(Lnet/minecraft/client/player/AbstractClientPlayer;Lnet/minecraft/client/renderer/entity/state/PlayerRenderState;F)V",
             at = @At("RETURN"))
     private void xnym$etat(AbstractClientPlayer joueur, PlayerRenderState etat, float tick, CallbackInfo ci) {
         ((EtatBandana) etat).xnym$setBandana(XnymMc.bandana(joueur.getUUID()));
+        ((EtatBandana) etat).xnym$setAiles(XnymMc.ailes(joueur.getUUID()), XnymMc.grandesAiles(joueur.getUUID()));
     }
 }

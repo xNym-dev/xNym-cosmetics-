@@ -1,24 +1,41 @@
 {
-  "version": 1,
+  "version": 2,
   "capes": [
-    { "id": "violet_nuit", "nom": "Violet nuit" },
-    { "id": "xnym", "nom": "Logo xNym" },
-    { "id": "galaxie", "nom": "Galaxie" },
-    { "id": "flammes", "nom": "Flammes violettes" },
+    { "id": "fuji", "nom": "Mont Fuji" },
+    { "id": "couchant", "nom": "Soleil couchant" },
+    { "id": "vague", "nom": "La vague" },
+    { "id": "lune", "nom": "Pleine lune" },
     { "id": "eclair", "nom": "Éclair" },
-    { "id": "damier", "nom": "Damier" }
+    { "id": "flammes", "nom": "Flammes" },
+    { "id": "galaxie", "nom": "Galaxie" },
+    { "id": "xnym", "nom": "Emblème xNym" },
+    { "id": "course", "nom": "Course" }
   ],
   "bandanas": [
-    { "id": "violet", "nom": "Bandana violet" },
-    { "id": "noir", "nom": "Bandana noir" },
-    { "id": "rouge", "nom": "Bandana rouge" },
-    { "id": "xnym", "nom": "Bandana xNym" }
+    { "id": "rouge", "nom": "Rouge" },
+    { "id": "noir", "nom": "Noir" },
+    { "id": "blanc", "nom": "Blanc" },
+    { "id": "violet", "nom": "Violet" },
+    { "id": "orange", "nom": "Orange à pois" },
+    { "id": "feu", "nom": "Feu" },
+    { "id": "xnym", "nom": "xNym" }
+  ],
+  "ailes": [
+    { "id": "grand_ange", "nom": "Ange", "taille": "grand" },
+    { "id": "grand_phenix", "nom": "Phénix", "taille": "grand" },
+    { "id": "grand_dragon", "nom": "Dragon", "taille": "grand" },
+    { "id": "grand_demon", "nom": "Démon", "taille": "grand" },
+    { "id": "petit_ange", "nom": "Petit ange", "taille": "petit" },
+    { "id": "petit_violet", "nom": "Petites plumes violettes", "taille": "petit" },
+    { "id": "petit_demon", "nom": "Petit démon", "taille": "petit" },
+    { "id": "petit_papillon", "nom": "Papillon", "taille": "petit" }
   ],
   "nametags": [
     { "id": "violet", "nom": "Violet", "couleurs": ["#A855F7"] },
-    { "id": "degrade", "nom": "Dégradé xNym", "couleurs": ["#7C3AED", "#EC4899"] },
-    { "id": "arc_en_ciel", "nom": "Arc-en-ciel", "couleurs": ["#EF4444", "#F59E0B", "#22C55E", "#3B82F6", "#A855F7"] },
-    { "id": "or", "nom": "Or", "couleurs": ["#FBBF24"] },
-    { "id": "etoile", "nom": "Étoile violette", "couleurs": ["#C084FC"], "icone": "✦" }
+    { "id": "degrade", "nom": "Dégradé xNym", "couleurs": ["#7C3AED", "#DC2626"] },
+    { "id": "feu", "nom": "Feu", "couleurs": ["#FACC15", "#F97316", "#DC2626"] },
+    { "id": "or", "nom": "Or", "couleurs": ["#FACC15"] },
+    { "id": "rouge", "nom": "Rouge", "couleurs": ["#DC2626"] },
+    { "id": "etoile", "nom": "Étoile", "couleurs": ["#FFFFFF"], "icone": "✦", "couleurIcone": "#A855F7" }
   ]
 }

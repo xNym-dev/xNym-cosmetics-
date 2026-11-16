@@ -12,11 +12,17 @@ public final class StylesPseudo {
     public static int[] couleurs(String style) {
         if (style == null) return null;
         if (style.equals("violet")) return new int[]{0xA855F7};
-        if (style.equals("degrade")) return new int[]{0x7C3AED, 0xEC4899};
-        if (style.equals("arc_en_ciel")) return new int[]{0xEF4444, 0xF59E0B, 0x22C55E, 0x3B82F6, 0xA855F7};
-        if (style.equals("or")) return new int[]{0xFBBF24};
-        if (style.equals("etoile")) return new int[]{0xC084FC};
+        if (style.equals("degrade")) return new int[]{0x7C3AED, 0xDC2626};
+        if (style.equals("feu")) return new int[]{0xFACC15, 0xF97316, 0xDC2626};
+        if (style.equals("or")) return new int[]{0xFACC15};
+        if (style.equals("rouge")) return new int[]{0xDC2626};
+        if (style.equals("etoile")) return new int[]{0xFFFFFF};
         return null;
+    }
+
+    /** Couleur RVB de l'icône. */
+    public static int couleurIcone(String style, int[] couleurs) {
+        return "etoile".equals(style) ? 0xA855F7 : couleurs[0];
     }
 
     /** Icône affichée devant le pseudo, ou null. */
@@ -69,7 +75,7 @@ public final class StylesPseudo {
         if (c == null) return null;
         StringBuilder sb = new StringBuilder();
         String icone = icone(style);
-        if (icone != null) sb.append('§').append(codeProche(c[0])).append(icone).append(' ');
+        if (icone != null) sb.append('§').append(codeProche(couleurIcone(style, c))).append(icone).append(' ');
         char precedent = 0;
         for (int i = 0; i < pseudo.length(); i++) {
             char code = codeProche(couleur(c, i, pseudo.length()));

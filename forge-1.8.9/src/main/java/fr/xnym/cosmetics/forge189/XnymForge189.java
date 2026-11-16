@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-@Mod(modid = XnymCosmetics.MOD_ID, name = "xNym Cosmetics", version = "1.0.0",
+@Mod(modid = XnymCosmetics.MOD_ID, name = "xNym Cosmetics", version = "1.1.0",
         clientSideOnly = true, acceptedMinecraftVersions = "[1.8.9]")
 public class XnymForge189 {
 
@@ -55,6 +55,7 @@ public class XnymForge189 {
             List<Object> couches = ReflectionHelper.getPrivateValue(RendererLivingEntity.class, rendu,
                     "layerRenderers", "field_177097_h");
             couches.add(new CoucheBandana(rendu));
+            couches.add(new CoucheAiles(rendu));
         }
     }
 

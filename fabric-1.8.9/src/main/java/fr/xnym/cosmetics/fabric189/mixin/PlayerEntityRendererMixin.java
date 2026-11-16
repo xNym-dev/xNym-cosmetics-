@@ -13,5 +13,6 @@ public abstract class PlayerEntityRendererMixin {
     private void xnym$ajouterBandana(CallbackInfo ci) {
         PlayerEntityRenderer self = (PlayerEntityRenderer) (Object) this;
         ((LivingEntityRendererInvoker) self).xnym$addFeature(new BandanaFeatureRenderer(self));
+        ((LivingEntityRendererInvoker) self).xnym$addFeature(new fr.xnym.cosmetics.fabric189.AilesFeatureRenderer(self));
     }
 }

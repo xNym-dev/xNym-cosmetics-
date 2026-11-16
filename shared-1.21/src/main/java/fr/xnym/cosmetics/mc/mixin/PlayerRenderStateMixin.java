@@ -10,6 +10,10 @@ import org.spongepowered.asm.mixin.Unique;
 public abstract class PlayerRenderStateMixin implements EtatBandana {
     @Unique
     private ResourceLocation xnym$bandana;
+    @Unique
+    private ResourceLocation xnym$ailes;
+    @Unique
+    private boolean xnym$grandes;
 
     @Override
     public ResourceLocation xnym$getBandana() {
@@ -19,5 +23,21 @@ public abstract class PlayerRenderStateMixin implements EtatBandana {
     @Override
     public void xnym$setBandana(ResourceLocation texture) {
         xnym$bandana = texture;
+    }
+
+    @Override
+    public ResourceLocation xnym$getAiles() {
+        return xnym$ailes;
+    }
+
+    @Override
+    public boolean xnym$grandesAiles() {
+        return xnym$grandes;
+    }
+
+    @Override
+    public void xnym$setAiles(ResourceLocation texture, boolean grandes) {
+        xnym$ailes = texture;
+        xnym$grandes = grandes;
     }
 }

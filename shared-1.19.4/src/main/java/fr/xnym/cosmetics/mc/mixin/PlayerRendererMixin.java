@@ -1,5 +1,6 @@
 package fr.xnym.cosmetics.mc.mixin;
 
+import fr.xnym.cosmetics.mc.CoucheAiles;
 import fr.xnym.cosmetics.mc.CoucheBandana;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -20,5 +21,6 @@ public abstract class PlayerRendererMixin extends LivingEntityRenderer<AbstractC
     @Inject(method = "<init>", at = @At("RETURN"))
     private void xnym$ajouterBandana(EntityRendererProvider.Context ctx, boolean fin, CallbackInfo ci) {
         this.addLayer(new CoucheBandana((PlayerRenderer) (Object) this));
+        this.addLayer(new CoucheAiles((PlayerRenderer) (Object) this));
     }
 }

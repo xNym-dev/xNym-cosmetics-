@@ -1,7 +1,7 @@
 // Serveur des cosmétiques xNym (Cloudflare Worker + KV).
 //
 // GET  /catalog                 → catalogue des cosmétiques
-// POST /lookup   {uuids:[...]}  → { "<uuid>": {cape, bandana, nametag}, ... } (uniquement ceux qui ont des cosmétiques)
+// POST /lookup   {uuids:[...]}  → { "<uuid>": {cape, bandana, nametag, ailes}, ... } (uniquement ceux qui ont des cosmétiques)
 // POST /auth/start {name}       → { nonce }   (le client appelle ensuite Mojang "join" avec serverId = nonce)
 // POST /auth/finish {nonce}     → { token, uuid, name }  (vérifié auprès de Mojang "hasJoined")
 // GET  /me   (Authorization: Bearer <token>) → cosmétiques du joueur
@@ -17,6 +17,7 @@ const IDS = {
   cape: new Set(catalog.capes.map((c) => c.id)),
   bandana: new Set(catalog.bandanas.map((c) => c.id)),
   nametag: new Set(catalog.nametags.map((c) => c.id)),
+  ailes: new Set(catalog.ailes.map((c) => c.id)),
 };
 
 const json = (data, status = 200, extra = {}) =>
@@ -152,7 +153,7 @@ async function routes(request, env) {
       const corps = await lireJson(request);
       if (!corps || typeof corps !== "object") return erreur("corps invalide");
       const choix = {};
-      for (const type of ["cape", "bandana", "nametag"]) {
+      for (const type of ["cape", "bandana", "nametag", "ailes"]) {
         const v = corps[type];
         if (v === null || v === undefined || v === "") continue;
         if (typeof v !== "string" || !IDS[type].has(v)) return erreur(`${type} inconnu : ${v}`);

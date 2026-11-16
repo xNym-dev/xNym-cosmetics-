@@ -73,6 +73,15 @@ public final class XnymCosmetics {
         if (uuid != null) FILE.put(uuid, Boolean.TRUE);
     }
 
+    /**
+     * Angle (radians) d'ouverture des ailes : battement lent et régulier.
+     * @param age âge du joueur en ticks (avec la fraction de tick)
+     */
+    public static float angleAiles(float age, boolean grandes) {
+        float base = grandes ? 0.42F : 0.32F;
+        return base + (float) Math.sin(age * 0.11F) * (grandes ? 0.16F : 0.22F);
+    }
+
     public static int generation() {
         return generation;
     }
@@ -114,7 +123,7 @@ public final class XnymCosmetics {
                 Cosmetiques apres = Cosmetiques.AUCUN;
                 if (reponse != null && reponse.has(cle) && reponse.get(cle).isJsonObject()) {
                     JsonObject o = reponse.getAsJsonObject(cle);
-                    apres = new Cosmetiques(texte(o, "cape"), texte(o, "bandana"), texte(o, "nametag"));
+                    apres = new Cosmetiques(texte(o, "cape"), texte(o, "bandana"), texte(o, "nametag"), texte(o, "ailes"));
                 }
                 if (apres.estVide()) CACHE.remove(u);
                 else CACHE.put(u, apres);
@@ -130,7 +139,7 @@ public final class XnymCosmetics {
     private static boolean memes(Cosmetiques a, Cosmetiques b) {
         if (a == null) a = Cosmetiques.AUCUN;
         if (b == null) b = Cosmetiques.AUCUN;
-        return eq(a.cape, b.cape) && eq(a.bandana, b.bandana) && eq(a.nametag, b.nametag);
+        return eq(a.cape, b.cape) && eq(a.bandana, b.bandana) && eq(a.nametag, b.nametag) && eq(a.ailes, b.ailes);
     }
 
     private static boolean eq(String a, String b) {

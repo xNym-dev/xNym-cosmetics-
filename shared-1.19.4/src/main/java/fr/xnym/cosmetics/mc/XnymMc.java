@@ -27,6 +27,16 @@ public final class XnymMc {
         return c.bandana == null ? null : texture("bandana", c.bandana);
     }
 
+    /** Texture des ailes, ou null. */
+    public static ResourceLocation ailes(java.util.UUID uuid) {
+        Cosmetiques c = XnymCosmetics.get(uuid);
+        return c.ailes == null ? null : texture("ailes", c.ailes);
+    }
+
+    public static boolean grandesAiles(java.util.UUID uuid) {
+        return XnymCosmetics.get(uuid).grandesAiles();
+    }
+
     /** Pseudo coloré selon le style (dégradé RVB), ou null. */
     public static MutableComponent pseudo(java.util.UUID uuid, String pseudo) {
         String style = XnymCosmetics.get(uuid).nametag;
@@ -36,7 +46,7 @@ public final class XnymMc {
         MutableComponent res = Component.empty();
         String icone = StylesPseudo.icone(style);
         if (icone != null) {
-            final int c0 = couleurs[0];
+            final int c0 = StylesPseudo.couleurIcone(style, couleurs);
             res.append(Component.literal(icone + " ").withStyle(s -> s.withColor(TextColor.fromRgb(c0))));
         }
         for (int i = 0; i < pseudo.length(); i++) {
