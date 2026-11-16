@@ -12,6 +12,7 @@
 import catalog from "../../catalog.json";
 
 const MAX_LOOKUP = 100;
+const MOJANG_ENTETES = { "User-Agent": "xNym-Cosmetics/1.0 (+https://github.com/xNym-dev/xNym-cosmetics-)", Accept: "application/json" };
 const DUREE_TOKEN = 30 * 24 * 3600; // 30 jours
 const IDS = {
   cape: new Set(catalog.capes.map((c) => c.id)),
@@ -103,8 +104,16 @@ async function routes(request, env) {
 
   // Diagnostic : le serveur arrive-t-il à joindre Mojang ? (aucune donnée personnelle)
   if (chemin === "/diag" && request.method === "GET") {
-    const r = await fetch("https://sessionserver.mojang.com/session/minecraft/hasJoined?username=Notch&serverId=test");
-    return json({ mojang: r.status, corps: (await r.text()).slice(0, 200) });
+    const essais = {};
+    for (const [nom, url, entetes] of [
+      ["hasJoined_ua", "https://sessionserver.mojang.com/session/minecraft/hasJoined?username=Notch&serverId=test", MOJANG_ENTETES],
+      ["profil_session", "https://sessionserver.mojang.com/session/minecraft/profile/069a79f444e94726a5befca90e38aaf5", MOJANG_ENTETES],
+      ["services_profil", "https://api.minecraftservices.com/minecraft/profile", { ...MOJANG_ENTETES, Authorization: "Bearer test" }],
+    ]) {
+      const r = await fetch(url, { headers: entetes });
+      essais[nom] = r.status;
+    }
+    return json(essais);
   }
 
   if (chemin === "/catalog" && request.method === "GET") {
@@ -140,7 +149,8 @@ async function routes(request, env) {
     if (!name) return erreur("nonce expiré", 401);
     await env.COSMETICS.delete(`n:${nonce}`);
     const r = await fetch(
-      `https://sessionserver.mojang.com/session/minecraft/hasJoined?username=${encodeURIComponent(name)}&serverId=${nonce}`
+      `https://sessionserver.mojang.com/session/minecraft/hasJoined?username=${encodeURIComponent(name)}&serverId=${nonce}`,
+      { headers: MOJANG_ENTETES }
     );
     if (r.status !== 200) return erreur(`vérification Mojang refusée (HTTP ${r.status})`, 401);
     const profil = await r.json();
