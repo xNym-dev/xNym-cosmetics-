@@ -101,6 +101,12 @@ async function routes(request, env) {
 
   if (chemin === "/" && request.method === "GET") return json({ service: "xnym-cosmetics", ok: true });
 
+  // Diagnostic : le serveur arrive-t-il à joindre Mojang ? (aucune donnée personnelle)
+  if (chemin === "/diag" && request.method === "GET") {
+    const r = await fetch("https://sessionserver.mojang.com/session/minecraft/hasJoined?username=Notch&serverId=test");
+    return json({ mojang: r.status, corps: (await r.text()).slice(0, 200) });
+  }
+
   if (chemin === "/catalog" && request.method === "GET") {
     return json(catalog, 200, { "cache-control": "public, max-age=300" });
   }
@@ -136,7 +142,7 @@ async function routes(request, env) {
     const r = await fetch(
       `https://sessionserver.mojang.com/session/minecraft/hasJoined?username=${encodeURIComponent(name)}&serverId=${nonce}`
     );
-    if (r.status !== 200) return erreur("vérification Mojang refusée", 401);
+    if (r.status !== 200) return erreur(`vérification Mojang refusée (HTTP ${r.status})`, 401);
     const profil = await r.json();
     const uuid = normUuid(profil.id);
     if (!uuidValide(uuid)) return erreur("profil Mojang invalide", 401);
